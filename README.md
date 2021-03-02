@@ -5,6 +5,10 @@ Take turns in throwing an exploding banana at each other. Specify angle and velo
 
 ![Screenshot](/screenshot.png?raw=true "Screenshot")
 
+## Download
+
+* [Windows (64 Bit)](https://github.com/fabioarnold/zig-gorillas/releases/download/1.0/zig-gorillas-win64.zip)
+
 ## Building from source
 
 ### Requirements
