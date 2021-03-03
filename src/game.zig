@@ -411,7 +411,7 @@ pub fn tick(self: *Game) void {
 fn drawParametersEntry(self: Game) void {
     nvg.save();
     defer nvg.restore();
-    if (self.player_turn == 2) nvg.translate(self.width - 330, 0);
+    if (self.player_turn == 2) nvg.translate(self.width - 280, 0);
 
     const cursor_blink = self.frame % 60 < 30;
     var buf: [20]u8 = undefined;
@@ -422,11 +422,12 @@ fn drawParametersEntry(self: Game) void {
     } else {
         _ = nvg.text(x, 80, std.fmt.bufPrint(&buf, "{}", .{self.angle}) catch unreachable);
     }
-    x = nvg.text(10, 110, "Velocity:");
+    x = nvg.text(10, 110, "Power:");
     if (self.text_entry == .velocity) {
         if (self.text_buffer.items.len > 0) x = nvg.text(x, 110, self.text_buffer.items);
         if (cursor_blink) _ = nvg.text(x, 110, "_");
     }
+    _ = nvg.text(10, 140, "1-100");
 }
 
 fn drawTitle(self: Game) void {
