@@ -6,16 +6,13 @@ const Builder = std.build.Builder;
 pub fn build(b: *Builder) !void {
     // workaround for windows not having visual studio installed
     // (makes .gnu the default target)
-    const native_target = if (std.builtin.os.tag == .windows)
-        std.zig.CrossTarget{ .abi = .gnu }
-    else
-        std.zig.CrossTarget{};
+    const default_abi = if (std.builtin.os.tag == .windows) .gnu else null;
     const target = b.standardTargetOptions(.{
-        .default_target = native_target,
+        .default_target = .{.abi = default_abi}
     });
     const mode = b.standardReleaseOptions();
 
-    const exe = b.addExecutable("ZigGorillas", "src/main.zig");
+    const exe = b.addExecutable("ZigGorillas", "src/main_sdl.zig");
     exe.setBuildMode(mode);
     exe.setTarget(target);
     if (exe.target.isWindows()) {

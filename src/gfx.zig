@@ -1,5 +1,5 @@
 const std = @import("std");
-const nvg = @import("nvg.zig");
+const nvg = if (std.builtin.arch == .wasm32) @import("web/canvas.zig") else @import("nvg.zig");
 
 fn readNumber(data: []const u8, len: *usize) f32 {
     var i: usize = 0;
@@ -224,7 +224,7 @@ pub fn drawHighVoltage() void {
     nvg.lineTo(13, -2);
     nvg.lineTo(-1, -2);
     nvg.closePath();
-    nvg.lineJoin(.Round);
+    nvg.lineJoin(.round);
     nvg.strokeWidth(4);
     nvg.stroke();
     nvg.fillColor(nvg.rgb(255, 200, 61));

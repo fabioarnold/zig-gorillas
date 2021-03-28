@@ -1,0 +1,1 @@
+pub extern fn consoleLog(str: [*]const u8, len: c_uint) void;

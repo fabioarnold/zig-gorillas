@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Zig Gorillas</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <style type="text/css">
+@font-face {
+  font-family: PressStart2P;
+  src: url(art/PressStart2P-Regular.ttf);
+}
+* { margin:0; padding:0; }
+html, body { width:100%; height:100%; }
+canvas { display:block; }
+  </style>
+</head>
+
+<body>
+  <!-- <canvas id="canvasgl" width="500" height="660"></canvas> -->
+  <canvas id="canvas2d"></canvas>
+  <script>
+    // var $webgl = document.getElementById("canvasgl");
+    var $canvas = document.getElementById("canvas2d");
+  </script>
+  <!-- <script src="js/dom.js"></script> -->
+  <!-- <script src="js/audio.js"></script> -->
+  <script src="js/canvas.js"></script>
+  <!-- <script src="js/webgl.js"></script> -->
+  <script src="js/wasm.js"></script>
+  <script>
+    const env = {
+      ...wasm,
+      // ...audio,
+      ...canvas,
+      // ...zigdom,
+      // ...webgl,
+      // setScore
+    }
+
+    fetchAndInstantiate('main_web.wasm', { env }).then(instance => {
+      memory = instance.exports.memory;
+      instance.exports.onInit();
+
+      function resize() {
+        $canvas.width = window.devicePixelRatio * window.innerWidth;
+        $canvas.height = window.devicePixelRatio * window.innerHeight;
+        $canvas.style.width = window.innerWidth + "px";
+        $canvas.style.height = window.innerHeight + "px";
+        instance.exports.onResize(window.innerWidth, window.innerHeight);
+      }
+      window.addEventListener('resize', resize, false);
+      resize();
+
+      const onAnimationFrame = instance.exports.onAnimationFrame;
+
+      document.addEventListener('keydown', e => instance.exports.onKeyDown(e.keyCode));
+      // document.addEventListener('keyup', e => instance.exports.onKeyUp(e.keyCode, 0));
+      // document.addEventListener('mousedown', e => instance.exports.onMouseDown(e.button, e.x, e.y));
+      // document.addEventListener('mouseup', e => instance.exports.onMouseUp(e.button, e.x, e.y));
+      // document.addEventListener('mousemove', e => instance.exports.onMouseMove(e.x, e.y));
+
+      function step(timestamp) {
+        const ctx = $canvas.getContext('2d');
+        ctx.resetTransform();
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        onAnimationFrame(timestamp);
+        window.requestAnimationFrame(step);
+      }
+
+      window.requestAnimationFrame(step);
+    });
+
+    function fetchAndInstantiate(url, importObject) {
+      return fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(bytes => WebAssembly.instantiate(bytes, importObject))
+        .then(results => results.instance);
+    }
+  </script>
+</body>
+
+</html>

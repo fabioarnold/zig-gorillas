@@ -1,5 +1,5 @@
 const std = @import("std");
-const nvg = @import("nvg.zig");
+const nvg = if (std.builtin.arch == .wasm32) @import("web/canvas.zig") else @import("nvg.zig");
 const gfx = @import("gfx.zig");
 
 const Game = @This();
@@ -191,7 +191,7 @@ pub fn init(allocator: *std.mem.Allocator) !Game {
     try self.player1_name.appendSlice("Player 1");
     try self.player2_name.appendSlice("Player 2");
 
-    const seed: u64 = @intCast(u64, std.time.milliTimestamp());
+    const seed: u64 = if (std.builtin.arch == .wasm32) 0 else @intCast(u64, std.time.milliTimestamp());
     self.rng = std.rand.Pcg.init(seed);
 
     try self.reset();
@@ -415,19 +415,19 @@ fn drawParametersEntry(self: Game) void {
 
     const cursor_blink = self.frame % 60 < 30;
     var buf: [20]u8 = undefined;
-    var x = nvg.text(10, 80, "Angle:");
+    var x = nvg.text("Angle:", 10, 80);
     if (self.text_entry == .angle) {
-        if (self.text_buffer.items.len > 0) x = nvg.text(x, 80, self.text_buffer.items);
-        if (cursor_blink) _ = nvg.text(x, 80, "_");
+        if (self.text_buffer.items.len > 0) x = nvg.text(self.text_buffer.items, x, 80);
+        if (cursor_blink) _ = nvg.text("_", x, 80);
     } else {
-        _ = nvg.text(x, 80, std.fmt.bufPrint(&buf, "{}", .{self.angle}) catch unreachable);
+        _ = nvg.text(std.fmt.bufPrint(&buf, "{}", .{self.angle}) catch unreachable, x, 80);
     }
-    x = nvg.text(10, 110, "Power:");
+    x = nvg.text("Power:", 10, 110);
     if (self.text_entry == .velocity) {
-        if (self.text_buffer.items.len > 0) x = nvg.text(x, 110, self.text_buffer.items);
-        if (cursor_blink) _ = nvg.text(x, 110, "_");
+        if (self.text_buffer.items.len > 0) x = nvg.text(self.text_buffer.items, x, 110);
+        if (cursor_blink) _ = nvg.text("_", x, 110);
     }
-    _ = nvg.text(10, 140, "1-100");
+    _ = nvg.text("1-100", 10, 140);
 }
 
 fn drawTitle(self: Game) void {
@@ -447,16 +447,16 @@ fn drawTitle(self: Game) void {
     nvg.fillColor(nvg.rgbf(1, 1, 1));
     nvg.fontSize(96);
     nvg.textAlign(.center);
-    _ = nvg.text(world_width / 2, 300, "Zig Gorillas");
-    _ = nvg.text(world_width / 2, 600, "VS");
+    _ = nvg.text("Zig Gorillas", world_width / 2, 300);
+    _ = nvg.text("VS", world_width / 2, 600);
 
     nvg.fontSize(48);
     var x1: f32 = 600;
-    if (self.player1_name.items.len > 0) x1 = nvg.text(x1, 800, self.player1_name.items);
+    if (self.player1_name.items.len > 0) x1 = nvg.text(self.player1_name.items, x1, 800);
     var x2: f32 = world_width - 600;
-    if (self.player2_name.items.len > 0) x2 = nvg.text(x2, 800, self.player2_name.items);
+    if (self.player2_name.items.len > 0) x2 = nvg.text(self.player2_name.items, x2, 800);
     nvg.textAlign(.left);
-    if (self.frame % 60 < 30) _ = nvg.text(if (self.text_entry == .player1_name) x1 else x2, 800, "_");
+    if (self.frame % 60 < 30) _ = nvg.text("_", if (self.text_entry == .player1_name) x1 else x2, 800);
 
     nvg.scale(2, 2);
     gfx.drawGorilla(600 / 2, 320, self.frame % 60 < 30, true);
@@ -480,7 +480,7 @@ fn drawWindIndicator(self: Game) void {
     nvg.closePath();
     nvg.fillColor(nvg.rgbf(1, 0, 0));
     nvg.fill();
-    nvg.lineJoin(.Round);
+    nvg.lineJoin(.round);
     nvg.stroke();
 }
 
@@ -494,16 +494,16 @@ fn drawGameplay(self: Game) void {
     // player names
     nvg.fillColor(nvg.rgbf(1, 1, 1));
     nvg.fontSize(24);
-    _ = nvg.text(10, 34, self.player1_name.items);
+    _ = nvg.text(self.player1_name.items, 10, 34);
     _ = nvg.textAlign(.right);
-    _ = nvg.text(self.width - 10, 34, self.player2_name.items);
+    _ = nvg.text(self.player2_name.items, self.width - 10, 34);
     _ = nvg.textAlign(.left);
 
     if (self.player_win == 1) {
-        _ = nvg.text(10, 80, "WIN");
+        _ = nvg.text("WIN", 10, 80);
     } else if (self.player_win == 2) {
         _ = nvg.textAlign(.right);
-        _ = nvg.text(self.width - 10, 80, "WIN");
+        _ = nvg.text("WIN", self.width - 10, 80);
         _ = nvg.textAlign(.left);
     } else {
         if (!self.banana_flying) {

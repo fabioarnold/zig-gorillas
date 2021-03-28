@@ -18,15 +18,15 @@ pub const Solidity = enum(u1) {
 };
 
 pub const LineCap = enum(u2) {
-    Butt,
-    Round,
-    Square,
+    butt,
+    round,
+    square,
 };
 
 pub const LineJoin = enum(u2) {
-    Miter,
-    Round,
-    Bevel,
+    miter,
+    round,
+    bevel,
 };
 
 pub const TextAlign = enum(u8) {
@@ -199,9 +199,9 @@ pub fn strokeWidth(size: f32) void {
 // Can be one of: NVG_BUTT (default), NVG_ROUND, NVG_SQUARE.
 pub fn lineCap(cap: LineCap) void {
     const c_cap: c_int = switch (cap) {
-        .Butt => c.NVG_BUTT,
-        .Round => c.NVG_ROUND,
-        .Square => c.NVG_SQUARE,
+        .butt => c.NVG_BUTT,
+        .round => c.NVG_ROUND,
+        .square => c.NVG_SQUARE,
     };
     c.nvgLineCap(ctx, c_cap);
 }
@@ -210,9 +210,9 @@ pub fn lineCap(cap: LineCap) void {
 // Can be one of NVG_MITER (default), NVG_ROUND, NVG_BEVEL.
 pub fn lineJoin(join: LineJoin) void {
     const c_join: c_int = switch (join) {
-        .Miter => c.NVG_MITER,
-        .Round => c.NVG_ROUND,
-        .Bevel => c.NVG_BEVEL,
+        .miter => c.NVG_MITER,
+        .round => c.NVG_ROUND,
+        .bevel => c.NVG_BEVEL,
     };
     c.nvgLineJoin(ctx, c_join);
 }
@@ -605,7 +605,7 @@ pub fn fontFace(font: [:0]const u8) void {
 }
 
 // Draws text string at specified location. If end is specified only the sub-string up to the end is drawn.
-pub fn text(x: f32, y: f32, string: []const u8) f32 {
+pub fn text(string: []const u8, x: f32, y: f32) f32 {
     if (string.len == 0) return 0;
     return c.nvgText(ctx, x, y, std.meta.assumeSentinel(string, 0), string.ptr + string.len);
 }
