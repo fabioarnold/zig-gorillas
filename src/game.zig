@@ -118,7 +118,7 @@ const Building = struct {
             nvg.circle(hole.x, hole.y, hole.r - 4);
         }
         nvg.stroke();
-        nvg.scissor(self.x - 1, self.y - 1, self.w + 2, self.h + 2); // HACK
+        //nvg.scissor(self.x - 1, self.y - 1, self.w + 2, self.h + 2); // HACK
         nvg.fillColor(nvg.rgbf(0.3, 0.5, 0.8)); // background color
         nvg.fill();
     }

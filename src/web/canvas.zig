@@ -56,8 +56,9 @@ pub const rotate = js.rotate;
 pub const scale = js.scale;
 pub fn scissor(x: f32, y: f32, w: f32, h: f32) void {
     save();
-    //rect(x, y, w, h);
-    //js.clip();
+    beginPath();
+    rect(x, y, w, h);
+    js.clip();
 }
 pub fn resetScissor() void {
     restore();
