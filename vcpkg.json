@@ -1,0 +1,14 @@
+{
+    "name": "zig-gorillas",
+    "version-string": "1.0.0",
+    "maintainers": [
+        "Fabio Arnold <fabio@fabioarnold.de>"
+    ],
+    "description": "A clone of the classic QBasic Gorillas written in the Zig programming language.",
+    "homepage": "https://fabioarnold.de",
+    "license": "MIT",
+    "supports": "windows",
+    "dependencies": [
+        "sdl2"
+    ]
+}

@@ -1,0 +1,46 @@
+name: Nightly Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 5 * * *' # run at 5 AM UTC
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: goto-bus-stop/setup-zig@v1
+        with:
+          version: master
+      - run: zig fmt --check src/*.zig
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Install latest CMake.
+        uses: lukka/get-cmake@latest
+
+      - name: Restore artifacts, or setup vcpkg
+        uses: lukka/run-vcpkg@v10
+        with:
+          vcpkgGitCommitId: 'b25cb779e5783531cc66562e224079b376055939'
+          runVcpkgInstall: true
+          runVcpkgFormatString: '[`install`, `--recurse`, `--clean-after-build`, `--x-install-root`, `vcpkg/installed`, `--triplet`, `$[env.VCPKG_DEFAULT_TRIPLET]`]'
+
+      # So Zig finds vcpkg
+      - run: vcpkg integrate install
+
+      - uses: goto-bus-stop/setup-zig@v1
+        with:
+          version: master
+
+      - run: zig build install
