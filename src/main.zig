@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const mem = std.mem;
 const Allocator = mem.Allocator;
 
@@ -9,11 +10,6 @@ const Game = @import("game.zig");
 
 extern fn gladLoadGL() callconv(.C) c_int; // init OpenGL function pointers on Windows and Linux
 extern fn SetProcessDPIAware() callconv(.C) c_int;
-
-export fn WinMain() callconv(.C) c_int {
-    main() catch return 1; // TODO report error
-    return 0;
-}
 
 var sdl_window: ?*c.SDL_Window = null;
 var sdl_gl_context: c.SDL_GLContext = undefined;
@@ -42,7 +38,7 @@ fn draw() void {
 var first_surrogate_half: ?u16 = null;
 
 fn sdlProcessTextInput(text_event: c.SDL_TextInputEvent) !void {
-    const text = mem.spanZ(std.meta.assumeSentinel(&text_event.text, 0));
+    const text = mem.sliceTo(std.meta.assumeSentinel(&text_event.text, 0), 0);
 
     if (std.unicode.utf8ValidateSlice(text)) {
         try game.onTextInput(text);
@@ -73,7 +69,7 @@ fn sdlProcessTextInput(text_event: c.SDL_TextInputEvent) !void {
 }
 
 fn getVideoScale() f32 {
-    const default_dpi: f32 = switch (std.builtin.os.tag) {
+    const default_dpi: f32 = switch (builtin.os.tag) {
         .windows => 96,
         .macos => 72,
         else => 96, // TODO
@@ -91,7 +87,7 @@ fn sdlSetupFrame() void {
         video_scale = new_video_scale;
         var window_width: i32 = undefined;
         var window_height: i32 = undefined;
-        if (std.builtin.os.tag == .macos) {
+        if (builtin.os.tag == .macos) {
             window_width = @floatToInt(i32, video_width);
             window_height = @floatToInt(i32, video_height);
         } else {
@@ -118,7 +114,8 @@ fn sdlToggleFullscreen() void {
     _ = c.SDL_ShowCursor(if (fullscreen) c.SDL_DISABLE else c.SDL_ENABLE);
 }
 
-fn sdlEventWatch(userdata: ?*c_void, sdl_event_ptr: [*c]c.SDL_Event) callconv(.C) c_int {
+fn sdlEventWatch(userdata: ?*anyopaque, sdl_event_ptr: [*c]c.SDL_Event) callconv(.C) c_int {
+    _ = userdata;
     const sdl_event = sdl_event_ptr[0];
     if (sdl_event.type == c.SDL_WINDOWEVENT and sdl_event.window.event == c.SDL_WINDOWEVENT_RESIZED) {
         draw();
@@ -128,7 +125,7 @@ fn sdlEventWatch(userdata: ?*c_void, sdl_event_ptr: [*c]c.SDL_Event) callconv(.C
 }
 
 pub fn main() !void {
-    if (std.builtin.os.tag == .windows) {
+    if (builtin.os.tag == .windows) {
         _ = SetProcessDPIAware();
     }
     if (c.SDL_Init(c.SDL_INIT_VIDEO | c.SDL_INIT_TIMER) != 0) {
@@ -137,14 +134,14 @@ pub fn main() !void {
     }
     defer c.SDL_Quit();
 
-    _ = c.SDL_GL_SetAttribute(.SDL_GL_STENCIL_SIZE, 1);
-    _ = c.SDL_GL_SetAttribute(.SDL_GL_MULTISAMPLEBUFFERS, 1);
-    _ = c.SDL_GL_SetAttribute(.SDL_GL_MULTISAMPLESAMPLES, 4);
+    _ = c.SDL_GL_SetAttribute(c.SDL_GL_STENCIL_SIZE, 1);
+    _ = c.SDL_GL_SetAttribute(c.SDL_GL_MULTISAMPLEBUFFERS, 1);
+    _ = c.SDL_GL_SetAttribute(c.SDL_GL_MULTISAMPLESAMPLES, 4);
     const window_flags = c.SDL_WINDOW_OPENGL | c.SDL_WINDOW_ALLOW_HIGHDPI | c.SDL_WINDOW_RESIZABLE;
     var window_width: i32 = undefined;
     var window_height: i32 = undefined;
     video_scale = getVideoScale();
-    if (std.builtin.os.tag == .macos) {
+    if (builtin.os.tag == .macos) {
         window_width = @floatToInt(i32, video_width);
         window_height = @floatToInt(i32, video_height);
     } else {
@@ -167,9 +164,7 @@ pub fn main() !void {
 
     _ = c.SDL_GL_SetSwapInterval(1);
 
-    if (std.builtin.os.tag == .windows or std.builtin.os.tag == .linux) {
-        _ = gladLoadGL();
-    }
+    _ = gladLoadGL();
 
     c.SDL_AddEventWatch(sdlEventWatch, null);
 
@@ -186,7 +181,7 @@ pub fn main() !void {
         if (leaked) @panic("Memory leak :(");
     }
 
-    game = try Game.init(&gpa.allocator);
+    game = try Game.init(gpa.allocator());
     defer game.deinit();
 
     mainLoop: while (true) {

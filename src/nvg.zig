@@ -1,7 +1,7 @@
 const std = @import("std");
 const c = @import("c.zig");
 
-pub const Pi:f32 = 3.14159265358979323846264338327;
+pub const Pi: f32 = 3.14159265358979323846264338327;
 
 pub const Color = c.NVGcolor;
 
@@ -9,12 +9,12 @@ pub const Paint = c.NVGpaint;
 
 pub const Winding = enum(u2) {
     CounterClockwise = 1, // Winding for solid shapes
-    Clockwise = 2,        // Winding for holes
+    Clockwise = 2, // Winding for holes
 };
 
 pub const Solidity = enum(u1) {
     Solid = 1, // CCW
-    Hole = 2,  // CW
+    Hole = 2, // CW
 };
 
 pub const LineCap = enum(u2) {
@@ -279,7 +279,6 @@ pub fn scale(x: f32, y: f32) void {
 //   [0 0 1]
 // There should be space for 6 floats in the return buffer for the values a-f.
 // void nvgCurrentTransform(NVGcontext* ctx, float* xform);
-
 
 // The following functions can be used to make calculations on 2x3 transformation matrices.
 // A 2x3 matrix is represented as float[6].

@@ -30,7 +30,7 @@ const Building = struct {
 
     holes: std.ArrayList(Hole),
 
-    fn init(allocator: *std.mem.Allocator, x: f32, y: f32, w: f32, h: f32, color: BuildingColor) !*Building {
+    fn init(allocator: std.mem.Allocator, x: f32, y: f32, w: f32, h: f32, color: BuildingColor) !*Building {
         var self = try allocator.create(Building);
         self.* = Building{
             .x = x,
@@ -87,25 +87,25 @@ const Building = struct {
 
         // windows
         const seed = @floatToInt(u64, self.x); // stable
-        var pcg = std.rand.Pcg.init(seed);
+        var pcg = std.rand.Pcg.init(seed).random();
         nvg.beginPath();
         var wy = self.y;
         while (wy < self.y + self.h) : (wy += 40) {
             var wx = self.x + 0.5 * @rem(self.w, 30);
             while (wx + 15 < self.x + self.w) : (wx += 30) {
-                const on = pcg.random.uintLessThan(u8, 100) < 70;
+                const on = pcg.uintLessThan(u8, 100) < 70;
                 if (on) nvg.rect(wx + 10, wy + 18, 12, 20);
             }
         }
         nvg.fillColor(nvg.rgb(255, 255, 0));
         nvg.fill();
-        pcg = std.rand.Pcg.init(seed);
+        pcg = std.rand.Pcg.init(seed).random();
         nvg.beginPath();
         wy = self.y;
         while (wy < self.y + self.h) : (wy += 40) {
             var wx = self.x + 0.5 * @rem(self.w, 30);
             while (wx + 15 < self.x + self.w) : (wx += 30) {
-                const on = pcg.random.uintLessThan(u8, 100) < 70;
+                const on = pcg.uintLessThan(u8, 100) < 70;
                 if (!on) nvg.rect(wx + 10, wy + 18, 12, 20);
             }
         }
@@ -137,7 +137,7 @@ const player_r: f32 = 48;
 const banana_r: f32 = 16 - 4;
 const wind_max: f32 = 0.002;
 
-allocator: *std.mem.Allocator,
+allocator: std.mem.Allocator,
 width: f32 = 1280,
 height: f32 = 720,
 
@@ -177,9 +177,9 @@ buildings: std.ArrayList(*Building),
 screenshake_amplitude: f32 = 0,
 screenshake_frequency: f32 = 0,
 frame: usize = 0,
-rng: std.rand.Pcg = undefined,
+rng: std.rand.Random = undefined,
 
-pub fn init(allocator: *std.mem.Allocator) !Game {
+pub fn init(allocator: std.mem.Allocator) !Game {
     var self = Game{
         .allocator = allocator,
         .player1_name = std.ArrayList(u8).init(allocator),
@@ -192,7 +192,7 @@ pub fn init(allocator: *std.mem.Allocator) !Game {
     try self.player2_name.appendSlice("Player 2");
 
     const seed: u64 = @intCast(u64, std.time.milliTimestamp());
-    self.rng = std.rand.Pcg.init(seed);
+    self.rng = std.rand.Pcg.init(seed).random();
 
     try self.reset();
 
@@ -240,9 +240,15 @@ pub fn onTextInput(self: *Game, text: []const u8) !void {
 
 pub fn onKeyBackspace(self: *Game) void {
     switch (self.text_entry) {
-        .player1_name => {if (self.player1_name.items.len > 0) self.player1_name.items.len -= 1;},
-        .player2_name => {if (self.player2_name.items.len > 0) self.player2_name.items.len -= 1;},
-        else => {if (self.text_buffer.items.len > 0) self.text_buffer.items.len -= 1;},
+        .player1_name => {
+            if (self.player1_name.items.len > 0) self.player1_name.items.len -= 1;
+        },
+        .player2_name => {
+            if (self.player2_name.items.len > 0) self.player2_name.items.len -= 1;
+        },
+        else => {
+            if (self.text_buffer.items.len > 0) self.text_buffer.items.len -= 1;
+        },
     }
 }
 
@@ -295,15 +301,15 @@ fn clearBuildings(self: *Game) void {
 
 fn generateBuildings(self: *Game, n: usize) !void {
     self.clearBuildings();
-    try self.buildings.ensureCapacity(n);
+    try self.buildings.ensureTotalCapacity(n);
 
     var total_width: f32 = 0;
     const spacing: f32 = 12;
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        const color = @intToEnum(BuildingColor, self.rng.random.uintLessThan(u2, @typeInfo(BuildingColor).Enum.fields.len));
-        const width = @intToFloat(f32, self.rng.random.intRangeAtMost(i32, 120, 250));
-        const height = @intToFloat(f32, self.rng.random.intRangeAtMost(i32, 200, 750));
+        const color = @intToEnum(BuildingColor, self.rng.uintLessThan(u2, @typeInfo(BuildingColor).Enum.fields.len));
+        const width = @intToFloat(f32, self.rng.intRangeAtMost(i32, 120, 250));
+        const height = @intToFloat(f32, self.rng.intRangeAtMost(i32, 200, 750));
         self.buildings.appendAssumeCapacity(try Building.init(self.allocator, total_width, world_height - height, width, height, color));
         total_width += width;
     }
@@ -324,7 +330,7 @@ fn generateBuildings(self: *Game, n: usize) !void {
 }
 
 fn randomizeWind(self: *Game) void {
-    self.wind = wind_max * (self.rng.random.float(f32) * 2 - 1);
+    self.wind = wind_max * (self.rng.float(f32) * 2 - 1);
 }
 
 fn launchBanana(self: *Game, player: u2, angle: f32, velocity: f32) void {
