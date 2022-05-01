@@ -482,7 +482,7 @@ fn drawWindIndicator(self: Game) void {
     nvg.beginPath();
     nvg.moveTo(x, y - h);
     nvg.lineTo(x, y - h + 24);
-    nvg.lineTo(x + 64 * self.wind / wind_max, y - h + 12 + 8 * std.math.sin(0.06 * @intToFloat(f32, self.frame)));
+    nvg.lineTo(x + 64 * self.wind / wind_max, y - h + 12 + 8 * @sin(0.06 * @intToFloat(f32, self.frame)));
     nvg.closePath();
     nvg.fillColor(nvg.rgbf(1, 0, 0));
     nvg.fill();
@@ -571,8 +571,8 @@ fn sdCircle(x: f32, y: f32, r: f32) f32 {
 }
 
 fn sdRect(x: f32, y: f32, hw: f32, hh: f32) f32 {
-    const q_x = std.math.absFloat(x) - hw;
-    const q_y = std.math.absFloat(y) - hh;
+    const q_x = @fabs(x) - hw;
+    const q_y = @fabs(y) - hh;
     const q_x0 = std.math.max(q_x, 0);
     const q_y0 = std.math.max(q_y, 0);
     return std.math.sqrt(q_x0 * q_x0 + q_y0 * q_y0) + std.math.min(std.math.max(q_x, q_y), 0.0);
