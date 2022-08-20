@@ -5,6 +5,7 @@ pub fn build(b: *std.build.Builder) !void {
     const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("ZigGorillas", "src/main.zig");
+    exe.use_stage1 = true;
     exe.setBuildMode(mode);
     exe.setTarget(target);
     if (exe.target.isWindows()) {

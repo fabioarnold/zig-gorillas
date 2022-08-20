@@ -164,7 +164,9 @@ pub fn main() !void {
 
     _ = c.SDL_GL_SetSwapInterval(1);
 
-    _ = gladLoadGL();
+    if (builtin.os.tag == .windows or builtin.os.tag == .linux) {
+        _ = gladLoadGL();
+    }
 
     c.SDL_AddEventWatch(sdlEventWatch, null);
 
