@@ -19,7 +19,7 @@ pub fn build(b: *std.build.Builder) !void {
         exe.addObjectFile("banana.o");
         exe.want_lto = false; // workaround for https://github.com/ziglang/zig/issues/8531
     }
-    exe.addIncludeDir("lib/nanovg/src");
+    exe.addIncludePath("lib/nanovg/src");
     const c_flags = &.{ "-std=c99", "-D_CRT_SECURE_NO_WARNINGS", "-Ilib/gl2/include" };
     exe.addCSourceFile("src/c/nanovg_gl2_impl.c", c_flags);
     exe.linkSystemLibrary("SDL2");
