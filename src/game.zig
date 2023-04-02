@@ -87,25 +87,25 @@ const Building = struct {
 
         // windows
         const seed = @floatToInt(u64, self.x); // stable
-        var pcg = std.rand.Pcg.init(seed).random();
+        var rng = std.rand.DefaultPrng.init(seed);
+        const random = rng.random();
         nvg.beginPath();
         var wy = self.y;
         while (wy < self.y + self.h) : (wy += 40) {
             var wx = self.x + 0.5 * @rem(self.w, 30);
             while (wx + 15 < self.x + self.w) : (wx += 30) {
-                const on = pcg.uintLessThan(u8, 100) < 70;
+                const on = random.uintLessThan(u8, 100) < 70;
                 if (on) nvg.rect(wx + 10, wy + 18, 12, 20);
             }
         }
         nvg.fillColor(nvg.rgb(255, 255, 0));
         nvg.fill();
-        pcg = std.rand.Pcg.init(seed).random();
         nvg.beginPath();
         wy = self.y;
         while (wy < self.y + self.h) : (wy += 40) {
             var wx = self.x + 0.5 * @rem(self.w, 30);
             while (wx + 15 < self.x + self.w) : (wx += 30) {
-                const on = pcg.uintLessThan(u8, 100) < 70;
+                const on = random.uintLessThan(u8, 100) < 70;
                 if (!on) nvg.rect(wx + 10, wy + 18, 12, 20);
             }
         }
@@ -177,7 +177,7 @@ buildings: std.ArrayList(*Building),
 screenshake_amplitude: f32 = 0,
 screenshake_frequency: f32 = 0,
 frame: usize = 0,
-rng: std.rand.Random = undefined,
+rng: std.rand.DefaultPrng,
 
 pub fn init(allocator: std.mem.Allocator) !Game {
     var self = Game{
@@ -186,13 +186,14 @@ pub fn init(allocator: std.mem.Allocator) !Game {
         .player2_name = std.ArrayList(u8).init(allocator),
         .text_buffer = std.ArrayList(u8).init(allocator),
         .buildings = std.ArrayList(*Building).init(allocator),
+        .rng = undefined,
     };
 
     try self.player1_name.appendSlice("Player 1");
     try self.player2_name.appendSlice("Player 2");
 
-    const seed: u64 = @intCast(u64, std.time.milliTimestamp());
-    self.rng = std.rand.Pcg.init(seed).random();
+    const seed = @bitCast(u64, std.time.milliTimestamp());
+    self.rng = std.rand.DefaultPrng.init(seed);
 
     try self.reset();
 
@@ -303,13 +304,14 @@ fn generateBuildings(self: *Game, n: usize) !void {
     self.clearBuildings();
     try self.buildings.ensureTotalCapacity(n);
 
+    var random = self.rng.random();
     var total_width: f32 = 0;
     const spacing: f32 = 12;
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        const color = @intToEnum(BuildingColor, self.rng.uintLessThan(u2, @typeInfo(BuildingColor).Enum.fields.len));
-        const width = @intToFloat(f32, self.rng.intRangeAtMost(i32, 120, 250));
-        const height = @intToFloat(f32, self.rng.intRangeAtMost(i32, 200, 750));
+        const color = @intToEnum(BuildingColor, random.uintLessThan(u2, @typeInfo(BuildingColor).Enum.fields.len));
+        const width = @intToFloat(f32, random.intRangeAtMost(i32, 120, 250));
+        const height = @intToFloat(f32, random.intRangeAtMost(i32, 200, 750));
         self.buildings.appendAssumeCapacity(try Building.init(self.allocator, total_width, world_height - height, width, height, color));
         total_width += width;
     }
@@ -330,7 +332,7 @@ fn generateBuildings(self: *Game, n: usize) !void {
 }
 
 fn randomizeWind(self: *Game) void {
-    self.wind = wind_max * (self.rng.float(f32) * 2 - 1);
+    self.wind = wind_max * (self.rng.random().float(f32) * 2 - 1);
 }
 
 fn launchBanana(self: *Game, player: u2, angle: f32, velocity: f32) void {

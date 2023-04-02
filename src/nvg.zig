@@ -606,7 +606,7 @@ pub fn fontFace(font: [:0]const u8) void {
 // Draws text string at specified location. If end is specified only the sub-string up to the end is drawn.
 pub fn text(x: f32, y: f32, string: []const u8) f32 {
     if (string.len == 0) return 0;
-    return c.nvgText(ctx, x, y, std.meta.assumeSentinel(string, 0), string.ptr + string.len);
+    return c.nvgText(ctx, x, y, string.ptr, string.ptr + string.len);
 }
 
 // // Draws multi-line text string at specified location wrapped at the specified width. If end is specified only the sub-string up to the end is drawn.

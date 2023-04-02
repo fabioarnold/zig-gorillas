@@ -2,12 +2,15 @@ const std = @import("std");
 
 pub fn build(b: *std.build.Builder) !void {
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
-    const exe = b.addExecutable("ZigGorillas", "src/main.zig");
-    exe.use_stage1 = true;
-    exe.setBuildMode(mode);
-    exe.setTarget(target);
+    const exe = b.addExecutable(.{
+        .name = "ZigGorillas",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.setMainPkgPath(".");
     if (exe.target.isWindows()) {
         exe.addVcpkgPaths(.dynamic) catch @panic("vcpkg not installed");
         if (exe.vcpkg_bin_path) |path| {
@@ -17,7 +20,6 @@ pub fn build(b: *std.build.Builder) !void {
         exe.subsystem = .Windows;
         exe.linkSystemLibrary("shell32");
         exe.addObjectFile("banana.o");
-        exe.want_lto = false; // workaround for https://github.com/ziglang/zig/issues/8531
     }
     exe.addIncludePath("lib/nanovg/src");
     const c_flags = &.{ "-std=c99", "-D_CRT_SECURE_NO_WARNINGS", "-Ilib/gl2/include" };

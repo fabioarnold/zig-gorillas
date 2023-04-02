@@ -38,7 +38,7 @@ fn draw() void {
 var first_surrogate_half: ?u16 = null;
 
 fn sdlProcessTextInput(text_event: c.SDL_TextInputEvent) !void {
-    const text = mem.sliceTo(std.meta.assumeSentinel(&text_event.text, 0), 0);
+    const text = mem.sliceTo(&text_event.text, 0);
 
     if (std.unicode.utf8ValidateSlice(text)) {
         try game.onTextInput(text);
