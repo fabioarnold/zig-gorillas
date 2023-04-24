@@ -179,8 +179,8 @@ pub fn main() !void {
         .enable_memory_limit = true,
     }){};
     defer {
-        const leaked = gpa.deinit();
-        if (leaked) @panic("Memory leak :(");
+        const check = gpa.deinit();
+        if (check == .leak) @panic("Memory leak :(");
     }
 
     game = try Game.init(gpa.allocator());
