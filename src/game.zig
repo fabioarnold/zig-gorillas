@@ -575,11 +575,11 @@ fn sdCircle(x: f32, y: f32, r: f32) f32 {
 fn sdRect(x: f32, y: f32, hw: f32, hh: f32) f32 {
     const q_x = @fabs(x) - hw;
     const q_y = @fabs(y) - hh;
-    const q_x0 = std.math.max(q_x, 0);
-    const q_y0 = std.math.max(q_y, 0);
-    return std.math.sqrt(q_x0 * q_x0 + q_y0 * q_y0) + std.math.min(std.math.max(q_x, q_y), 0.0);
+    const q_x0 = @max(q_x, 0);
+    const q_y0 = @max(q_y, 0);
+    return std.math.sqrt(q_x0 * q_x0 + q_y0 * q_y0) + @min(@max(q_x, q_y), 0.0);
 }
 
 fn sdSubtraction(d1: f32, d2: f32) f32 {
-    return std.math.max(d1, -d2);
+    return @max(d1, -d2);
 }
