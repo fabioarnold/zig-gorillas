@@ -465,14 +465,14 @@ pub fn closePath() void {
 
 // Sets the current sub-path winding, see NVGwinding and NVGsolidity.
 pub fn pathWinding(dir: Winding) void {
-    c.nvgPathWinding(ctx, @enumToInt(dir));
+    c.nvgPathWinding(ctx, @intFromEnum(dir));
 }
 
 // Creates new circle arc shaped sub-path. The arc center is at cx,cy, the arc radius is r,
 // and the arc is drawn from angle a0 to a1, and swept in direction dir (NVG_CCW, or NVG_CW).
 // Angles are specified in radians.
 pub fn arc(cx: f32, cy: f32, r: f32, a0: f32, a1: f32, dir: Winding) void {
-    c.nvgArc(ctx, cx, cy, r, a0, a1, @enumToInt(dir));
+    c.nvgArc(ctx, cx, cy, r, a0, a1, @intFromEnum(dir));
 }
 
 // Creates new rectangle shaped sub-path.
@@ -592,7 +592,7 @@ pub fn fontSize(size: f32) void {
 
 // Sets the text align of current text style, see NVGalign for options.
 pub fn textAlign(text_align: TextAlign) void {
-    c.nvgTextAlign(ctx, @enumToInt(text_align));
+    c.nvgTextAlign(ctx, @intFromEnum(text_align));
 }
 
 // // Sets the font face based on specified id of current text style.

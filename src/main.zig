@@ -88,11 +88,11 @@ fn sdlSetupFrame() void {
         var window_width: i32 = undefined;
         var window_height: i32 = undefined;
         if (builtin.os.tag == .macos) {
-            window_width = @floatToInt(i32, video_width);
-            window_height = @floatToInt(i32, video_height);
+            window_width = @intFromFloat(i32, video_width);
+            window_height = @intFromFloat(i32, video_height);
         } else {
-            window_width = @floatToInt(i32, video_scale * video_width);
-            window_height = @floatToInt(i32, video_scale * video_height);
+            window_width = @intFromFloat(i32, video_scale * video_width);
+            window_height = @intFromFloat(i32, video_scale * video_height);
         }
         c.SDL_SetWindowSize(sdl_window, window_width, window_height);
     }
@@ -103,8 +103,8 @@ fn sdlSetupFrame() void {
     c.glViewport(0, 0, drawable_width, drawable_height);
 
     // only when window is resizable
-    video_width = @intToFloat(f32, drawable_width) / video_scale;
-    video_height = @intToFloat(f32, drawable_height) / video_scale;
+    video_width = @floatFromInt(f32, drawable_width) / video_scale;
+    video_height = @floatFromInt(f32, drawable_height) / video_scale;
     game.setSize(video_width, video_height);
 }
 
@@ -142,11 +142,11 @@ pub fn main() !void {
     var window_height: i32 = undefined;
     video_scale = getVideoScale();
     if (builtin.os.tag == .macos) {
-        window_width = @floatToInt(i32, video_width);
-        window_height = @floatToInt(i32, video_height);
+        window_width = @intFromFloat(i32, video_width);
+        window_height = @intFromFloat(i32, video_height);
     } else {
-        window_width = @floatToInt(i32, video_scale * video_width);
-        window_height = @floatToInt(i32, video_scale * video_height);
+        window_width = @intFromFloat(i32, video_scale * video_width);
+        window_height = @intFromFloat(i32, video_scale * video_height);
     }
     sdl_window = c.SDL_CreateWindow("Zig Gorillas", c.SDL_WINDOWPOS_CENTERED, c.SDL_WINDOWPOS_CENTERED, window_width, window_height, window_flags);
     if (sdl_window == null) {
