@@ -86,7 +86,7 @@ const Building = struct {
         nvg.fill();
 
         // windows
-        const seed = @intFromFloat(u64, self.x); // stable
+        const seed: u64 = @intFromFloat(self.x); // stable
         var rng = std.rand.DefaultPrng.init(seed);
         const random = rng.random();
         nvg.beginPath();
@@ -192,7 +192,7 @@ pub fn init(allocator: std.mem.Allocator) !Game {
     try self.player1_name.appendSlice("Player 1");
     try self.player2_name.appendSlice("Player 2");
 
-    const seed = @bitCast(u64, std.time.milliTimestamp());
+    const seed: u64 = @bitCast(std.time.milliTimestamp());
     self.rng = std.rand.DefaultPrng.init(seed);
 
     try self.reset();
@@ -285,7 +285,7 @@ pub fn onKeyReturn(self: *Game) void {
                     self.velocity = std.fmt.parseInt(u32, self.text_buffer.items, 10) catch unreachable;
                     self.text_buffer.items.len = 0;
                     self.text_entry = .angle;
-                    self.launchBanana(self.player_turn, @floatFromInt(f32, self.angle), @floatFromInt(f32, self.velocity));
+                    self.launchBanana(self.player_turn, @floatFromInt(self.angle), @floatFromInt(self.velocity));
                 }
             }
         },
@@ -309,13 +309,13 @@ fn generateBuildings(self: *Game, n: usize) !void {
     const spacing: f32 = 12;
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        const color = @enumFromInt(BuildingColor, random.uintLessThan(u2, @typeInfo(BuildingColor).Enum.fields.len));
-        const width = @floatFromInt(f32, random.intRangeAtMost(i32, 120, 250));
-        const height = @floatFromInt(f32, random.intRangeAtMost(i32, 200, 750));
+        const color: BuildingColor = @enumFromInt(random.uintLessThan(u2, @typeInfo(BuildingColor).Enum.fields.len));
+        const width: f32 = @floatFromInt(random.intRangeAtMost(i32, 120, 250));
+        const height: f32 = @floatFromInt(random.intRangeAtMost(i32, 200, 750));
         self.buildings.appendAssumeCapacity(try Building.init(self.allocator, total_width, world_height - height, width, height, color));
         total_width += width;
     }
-    const s = (world_width - @floatFromInt(f32, n - 1) * spacing) / total_width;
+    const s = (world_width - @as(f32, @floatFromInt(n - 1)) * spacing) / total_width;
     var x: f32 = 0;
     for (self.buildings.items) |building| {
         building.x = x;
@@ -411,7 +411,7 @@ pub fn tick(self: *Game) void {
     if (self.explosion_frames > 0) self.explosion_frames -= 1;
 
     self.screenshake_frequency = 0.8;
-    self.screenshake_amplitude = @floatFromInt(f32, self.explosion_frames);
+    self.screenshake_amplitude = @floatFromInt(self.explosion_frames);
 
     self.frame += 1;
 }
@@ -484,7 +484,7 @@ fn drawWindIndicator(self: Game) void {
     nvg.beginPath();
     nvg.moveTo(x, y - h);
     nvg.lineTo(x, y - h + 24);
-    nvg.lineTo(x + 64 * self.wind / wind_max, y - h + 12 + 8 * @sin(0.06 * @floatFromInt(f32, self.frame)));
+    nvg.lineTo(x + 64 * self.wind / wind_max, y - h + 12 + 8 * @sin(0.06 * @as(f32, @floatFromInt(self.frame))));
     nvg.closePath();
     nvg.fillColor(nvg.rgbf(1, 0, 0));
     nvg.fill();
@@ -524,7 +524,7 @@ fn drawGameplay(self: Game) void {
     const s = self.width / world_width;
     nvg.translate(0, self.height - s * world_height);
     nvg.scale(s, s);
-    const screenshake = @sin(self.screenshake_frequency * @floatFromInt(f32, self.frame)) * self.screenshake_amplitude;
+    const screenshake = @sin(self.screenshake_frequency * @as(f32, @floatFromInt(self.frame))) * self.screenshake_amplitude;
     nvg.translate(screenshake, 0);
 
     gfx.drawSun(world_width / 2, world_height - 970, self.banana_flying, self.banana_x, self.banana_y);
@@ -544,7 +544,7 @@ fn drawGameplay(self: Game) void {
     }
 
     if (self.banana_flying) {
-        gfx.drawBanana(self.banana_x, self.banana_y, @floatFromInt(f32, self.frame) * 0.1);
+        gfx.drawBanana(self.banana_x, self.banana_y, @as(f32, @floatFromInt(self.frame)) * 0.1);
     }
 
     if (self.explosion_frames > 0) {

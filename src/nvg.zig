@@ -328,7 +328,7 @@ pub fn scale(x: f32, y: f32) void {
 // Creates image by loading it from the disk from specified file name.
 // Returns handle to the image.
 pub fn createImage(filename: []const u8, flags: ImageFlags) Image {
-    return Image{ .handle = c.nvgCreateImage(ctx, filename.ptr, @bitCast(u6, flags)) };
+    return Image{ .handle = c.nvgCreateImage(ctx, filename.ptr, @as(u6, @bitCast(flags))) };
 }
 
 // // Creates image by loading it from the specified chunk of memory.
@@ -338,7 +338,7 @@ pub fn createImage(filename: []const u8, flags: ImageFlags) Image {
 // Creates image from specified image data.
 // Returns handle to the image.
 pub fn createImageRgba(w: i32, h: i32, flags: ImageFlags, data: []const u8) Image {
-    return Image{ .handle = c.nvgCreateImageRGBA(ctx, w, h, @bitCast(u6, flags), data.ptr) };
+    return Image{ .handle = c.nvgCreateImageRGBA(ctx, w, h, @as(u6, @bitCast(flags)), data.ptr) };
 }
 
 // // Updates image data specified by image handle.
@@ -553,7 +553,7 @@ pub fn createFont(name: [:0]const u8, filename: [:0]const u8) i32 {
 // Creates font by loading it from the specified memory chunk.
 // Returns handle to the font.
 pub fn createFontMem(name: [:0]const u8, data: []const u8) i32 {
-    return c.nvgCreateFontMem(ctx, name, data.ptr, @intCast(c_int, data.len), 0);
+    return c.nvgCreateFontMem(ctx, name, data.ptr, @as(c_int, @intCast(data.len)), 0);
 }
 
 // // fontIndex specifies which font face to load from a .ttf/.ttc file.
@@ -628,7 +628,7 @@ pub fn text(x: f32, y: f32, string: []const u8) f32 {
 // Calculates the glyph x positions of the specified text. If end is specified only the sub-string will be used.
 // Measured values are returned in local coordinate space.
 pub fn textGlyphPositions(x: f32, y: f32, string: []const u8, positions: []GlyphPosition) usize {
-    return @intCast(usize, c.nvgTextGlyphPositions(ctx, x, y, std.meta.assumeSentinel(string, 0), string.ptr + string.len, positions.ptr, @intCast(c_int, positions.len)));
+    return @as(usize, @intCast(c.nvgTextGlyphPositions(ctx, x, y, std.meta.assumeSentinel(string, 0), string.ptr + string.len, positions.ptr, @as(c_int, @intCast(positions.len)))));
 }
 
 // Returns the vertical metrics based on the current text style.

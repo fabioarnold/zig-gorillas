@@ -145,14 +145,14 @@ pub fn drawExplosion(x: f32, y: f32, r: f32) void {
     nvg.translate(x, y);
 
     const n: usize = 8;
-    const angle: f32 = 2 * std.math.pi / @floatFromInt(f32, n);
+    const angle: f32 = 2 * std.math.pi / @as(f32, @floatFromInt(n));
     var k: usize = 0;
     while (k < 3) : (k += 1) {
-        const kr = @floatFromInt(f32, 3 - k) * r / 3;
+        const kr = @as(f32, @floatFromInt(3 - k)) * r / 3;
         nvg.beginPath();
         var i: usize = 0;
         while (i < n) : (i += 1) {
-            const f = @floatFromInt(f32, i);
+            const f: f32 = @floatFromInt(i);
             var c = @cos(f * angle);
             var s = @sin(f * angle);
             if (i == 0) nvg.moveTo(kr * c, kr * s) else nvg.lineTo(kr * c, kr * s);
