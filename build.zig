@@ -9,8 +9,8 @@ pub fn build(b: *std.build.Builder) !void {
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
+        .main_pkg_path = .{ .path = "." },
     });
-    exe.setMainPkgPath(".");
     if (exe.target.isWindows()) {
         exe.addVcpkgPaths(.dynamic) catch @panic("vcpkg not installed");
         if (exe.vcpkg_bin_path) |path| {
@@ -19,11 +19,11 @@ pub fn build(b: *std.build.Builder) !void {
         }
         exe.subsystem = .Windows;
         exe.linkSystemLibrary("shell32");
-        exe.addObjectFile("banana.o");
+        exe.addObjectFile(.{ .path = "banana.o" });
     }
-    exe.addIncludePath("lib/nanovg/src");
+    exe.addIncludePath(.{ .path = "lib/nanovg/src" });
     const c_flags = &.{ "-std=c99", "-D_CRT_SECURE_NO_WARNINGS", "-Ilib/gl2/include" };
-    exe.addCSourceFile("src/c/nanovg_gl2_impl.c", c_flags);
+    exe.addCSourceFile(.{ .file = .{ .path = "src/c/nanovg_gl2_impl.c" }, .flags = c_flags });
     exe.linkSystemLibrary("SDL2");
     if (exe.target.isDarwin()) {
         exe.linkFramework("OpenGL");
