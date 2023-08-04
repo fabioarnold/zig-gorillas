@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: goto-bus-stop/setup-zig@v1
+      - uses: goto-bus-stop/setup-zig@v2
         with:
-          version: master
+          version: 0.11.0
       - run: zig fmt --check src/*.zig
 
   build-windows:
@@ -32,8 +32,8 @@ jobs:
       # So Zig finds vcpkg
       - run: vcpkg integrate install
 
-      - uses: goto-bus-stop/setup-zig@v1
+      - uses: goto-bus-stop/setup-zig@v2
         with:
-          version: master
+          version: 0.11.0
 
       - run: zig build install
