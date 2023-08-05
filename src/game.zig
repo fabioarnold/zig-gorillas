@@ -521,8 +521,19 @@ fn drawGameplay(self: Game) void {
 
     nvg.save();
     defer nvg.restore();
-    const s = self.width / world_width;
-    nvg.translate(0, self.height - s * world_height);
+    var s = self.width / world_width;
+
+    // the y location where the camera starts scaling to follow the banana
+    const banana_threshold_y: f32 = 100;
+    var translate_x: f32 = 0;
+    if (self.banana_flying and self.banana_y < banana_threshold_y) {
+        const past_threshold = banana_threshold_y - self.banana_y;
+        const scale_ratio = 1 + (past_threshold / world_height);
+        s = s / scale_ratio;
+        translate_x = (self.width - s * world_width) / 2;
+    }
+
+    nvg.translate(translate_x, self.height - s * world_height);
     nvg.scale(s, s);
     const screenshake = @sin(self.screenshake_frequency * @as(f32, @floatFromInt(self.frame))) * self.screenshake_amplitude;
     nvg.translate(screenshake, 0);
